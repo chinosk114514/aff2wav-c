@@ -75,6 +75,11 @@ char* splittext(char* text, char* split, int retcount) {
 }
 
 unsigned char* mixKeysound(MIXERDATA* mixerData, size_t mixerDataLength, size_t* output_keysoundDataLength, int offset) {
+    struct wave_file keysound_info = read_wav_file("C:\\Users\\Y7000\\Desktop\\wa.wav");
+    printf("keysound [%d, %d]\n", keysound_info.header.size, keysound_info.header.length);
+
+    printf("wocaoaaa %d, %d, %d, %d, %d\n", *keysound_info.data, *(keysound_info.data+1), *(keysound_info.data+2), *(keysound_info.data+3), *(keysound_info.data+4));
+
     float mixTimeLen;
     if (mixerDataLength == 0) {
         mixTimeLen = 0;
@@ -84,7 +89,8 @@ unsigned char* mixKeysound(MIXERDATA* mixerData, size_t mixerDataLength, size_t*
         for (int i = 0; i < mixerDataLength; i++) {
             mixerData[i].timing += offset;
         }
-        mixTimeLen = (float)(mixerData[mixerDataLength - 1].timing) / 1000 + bits2time(getDataLen(mixerData[mixerDataLength - 1].type));
+        //mixTimeLen = (float)(mixerData[mixerDataLength - 1].timing) / 1000 + bits2time(getDataLen(mixerData[mixerDataLength - 1].type));
+        mixTimeLen = (float)(mixerData[mixerDataLength - 1].timing) / 1000 + bits2time(keysound_info.header.length);
     }
     printf("Audio Time: %f sec.\n", mixTimeLen);
 
@@ -96,9 +102,11 @@ unsigned char* mixKeysound(MIXERDATA* mixerData, size_t mixerDataLength, size_t*
     for (int i = 0; i < mixerDataLength; i++) {
         MIXERDATA currentMixerData = mixerData[i];
         int mixSamplePos = (int)((double)(currentMixerData.timing) * 44.1);
-        int dataLen = getDataLen(currentMixerData.type);
+        //int dataLen = getDataLen(currentMixerData.type);
+        int dataLen = keysound_info.header.length;
         unsigned char* data = (unsigned char*)malloc(dataLen);
-        memcpy(data, getData(currentMixerData.type), dataLen);
+        //memcpy(data, getData(currentMixerData.type), dataLen);
+        memcpy(data, keysound_info.data, dataLen);
         for (int j = 0; j < dataLen; j += 2) {
             mixSamplePos++;
             if (mixSamplePos >= mixSampleCount) {
